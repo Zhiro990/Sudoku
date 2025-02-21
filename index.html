@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <!-- <link rel="icon" href="./pictures/favicon.ico" /> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Sudoku</title>
+  <meta name="description" content="Just a sudoku." />
+
+  <meta content="Sudoku" property="og:title" />
+  <meta content="Just a sudoku." property="og:description" />
+  <meta content="#39d7fe" name="theme-color" />
+
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .swal2-radio {
+      display: grid !important;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-white justify-center items-center text-center">
+  <div id="page" class="h-full min-h-screen w-full absolute">
+    <div id="container" class="size-fit grid grid-cols-1 gap-[40px] mx-auto -translate-y-1/2 top-1/2 relative">
+      <button id="change-theme"
+        class="size-fit text-[17px] text-[#ed6bff] border-[2px] border-gray-600 px-[15px] py-[7.5px] justify-self-center rounded-lg"
+        onclick="showChangeColorPopup();">
+        Change Theme
+      </button>
+
+      <div id="sudoku" class="size-fit bg-white grid grid-cols-3 border-[1px] border-gray-600 justify-self-center">
+      </div>
+
+      <div id="input"
+        class="size-fit bg-white grid grid-cols-5 sm:grid-cols-10 border-[2px] border-gray-600 justify-self-center">
+      </div>
+    </div>
+    <script>
+      /* --- THEME --- */
+
+      const colors = {
+        "#ed6bff": "Fuchsia ⭐",
+        "#ff7433": "Orange",
+        "#65d609": "Green",
+        "#3998fe": "Blue",
+        "#c18aff": "Lavender"
+      };
+
+      let current_theme = "#ed6bff";
+
+      /* --- GENERATE SUDOKU --- */
+
+      function createEmptyGrid() {
+        return Array.from({ length: 9 }, () => Array(9).fill(0));
+      }
+
+      function isValid(grid, row, col, num) {
+        for (let i = 0; i <= 8; i++) {
+          if (grid[row][i] == num || grid[i][col] == num) return false;
+
+          const boxRow = 3 * Math.floor(row / 3) + Math.floor(i / 3);
+          const boxCol = 3 * Math.floor(col / 3) + (i % 3);
+
+          if (grid[boxRow][boxCol] == num) return false;
+        }
+
+        return true;
+      }
+
+      function fillGrid(grid) {
+        for (let row = 0; row <= 8; row++) {
+          for (let col = 0; col <= 8; col++) {
+            if (grid[row][col] == 0) {
+              const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+
+              for (let num of numbers) {
+                if (isValid(grid, row, col, num)) {
+                  grid[row][col] = num;
+
+                  if (fillGrid(grid)) return true;
+
+                  grid[row][col] = 0;
+                }
+              }
+
+              return false;
+            }
+          }
+        }
+
+        return true;
+      }
+
+      function generateSudoku() {
+        let grid = createEmptyGrid();
+
+        fillGrid(grid);
+
+        return grid;
+      }
+
+      const true_content_horizontally = generateSudoku();
+      const content_horizontally = createEmptyGrid();
+
+      /* --- RENDER SUDOKU INTERFACE --- */
+
+      const sudoku = document.querySelector("#sudoku");
+
+      for (let i = 1; i <= 9; i++) {
+        const large_box = document.createElement("div");
+
+        large_box.id = `large-box-${i}`;
+        large_box.className = "size-fit bg-white grid grid-cols-3 border-[1px] border-gray-600";
+
+        sudoku.appendChild(large_box);
+
+        for (let j = 1; j <= 9; j++) {
+          const small_box = document.createElement("div");
+          const small_box_text = document.createElement("p");
+
+          const x = (i - 1) % 3 * 3 + (j - 1) % 3 + 1;
+          const y = Math.floor((i - 1) / 3) * 3 + Math.ceil(j / 3);
+
+          small_box.id = `small-box-${x}/${y}`;
+          small_box.className = "size-[40px] bg-white border-[1px] border-gray-300";
+          small_box.setAttribute("onclick", "toggleFocus(this);");
+
+          small_box_text.id = `small-box-${x}/${y}-text`;
+          small_box_text.className = "w-full text-[25px] text-black self-center text-center select-none";
+
+          large_box.appendChild(small_box);
+
+          small_box.appendChild(small_box_text);
+        }
+      }
+
+      /* AUTO-FILL SOME SUDOKU BOX */
+
+      for (let i = 1; i <= 3; i++) {
+        for (let x = 1; x <= 9; x++) {
+          const y = Math.floor(Math.random() * 9) + 1;
+
+          const true_number = true_content_horizontally[x - 1][y - 1];
+
+          content_horizontally[x - 1][y - 1] = true_number;
+
+          const box = document.getElementById(`small-box-${x}/${y}`);
+
+          box.toggleAttribute("absolute");
+          box.children[0].innerText = true_number;
+          box.children[0].classList.replace("text-black", `text-[#ed6bff]`);
+        }
+      }
+
+      /* --- RENDER INPUT INTERFACE --- */
+
+      const input = document.querySelector("#input");
+
+      for (let i = 0; i <= 9; i++) {
+        const input_box = document.createElement("button");
+
+        input_box.id = `input-${i || "blank"}`;
+        input_box.className = `size-[40px] text-[25px] text-[#ed6bff] border-[1px] border-gray-300`;
+        input_box.innerHTML = i || "";
+        input_box.setAttribute("onclick", `fillBox(${i || ""});`);
+
+        input.appendChild(input_box);
+      }
+
+      /* --- MAIN MECHANISM --- */
+
+      let focused;
+
+      function toggleFocus(element) {
+        if (focused) {
+          setFocusedBoxBackground(true);
+          setRelatedBoxsBackground(true);
+        }
+
+        focused = element;
+
+        setFocusedBoxBackground(false);
+        setRelatedBoxsBackground(false);
+      }
+
+      function fillBox(number) {
+        if (!focused || focused.hasAttribute("absolute")) return;
+
+        setRelatedBoxsBackground(true);
+
+        focused.children[0].textContent = number;
+
+        const [x, y] = focused.id.slice(10).split("/");
+
+        content_horizontally[x - 1][y - 1] = number || 0;
+
+        focused.children[0].style.color = number && true_content_horizontally[x - 1][y - 1] != number ? "red" : "black";
+
+        setRelatedBoxsBackground(false);
+
+        checkComplete();
+      }
+
+      function setFocusedBoxBackground(white) {
+        focused.classList.replace(white ? "bg-gray-300" : "bg-white", white ? "bg-white" : "bg-gray-300");
+      }
+
+      function setRelatedBoxsBackground(white) {
+        if (!focused.children[0].textContent) return;
+
+        const coordinates = content_horizontally.map((x, i) => {
+          const z = x.map((y, j) => y == Number(focused.children[0].textContent) ? j + 1 : null).filter(y => y);
+
+          return z ? z.map(y => [i + 1, y]) : null;
+        }).filter(x => x)
+          .flat()
+          .filter(x => x.join(" ") != focused.id.slice(10).split("/").map(b => Number(b)).join(" "));
+
+        coordinates.forEach((coordinate, i) => {
+          const element = document.getElementById(`small-box-${coordinate[0]}/${coordinate[1]}`);
+
+          element.classList.replace(white ? "bg-gray-300" : "bg-white", white ? "bg-white" : "bg-gray-300");
+        });
+      }
+
+      function checkComplete() {
+        let completed = 0;
+
+        for (let number = 1; number <= 9; number++) {
+          const coordinates = true_content_horizontally
+            .map((x, i) => [i + 1, x.map((y, j) => y == number ? j + 1 : false).find(y => y)]);
+
+          const element = document.querySelector(`#input-${number}`);
+
+          if (coordinates.filter(([x, y]) => content_horizontally[x - 1][y - 1] == number).length >= 9) {
+            element.style.opacity = "50%";
+            element.style.pointerEvents = "none";
+
+            completed++;
+          } else {
+            element.style.opacity = "100%";
+            element.style.pointerEvents = "all";
+          }
+        }
+
+        if (completed == 9) {
+          showCompletedPopup();
+        }
+      }
+
+      function showCompletedPopup() {
+        Swal.fire({
+          icon: "success",
+          title: "Excellent!",
+          text: "You completed this game!",
+          confirmButtonText: "New Game",
+          confirmButtonColor: current_theme
+        }).then(result => {
+          if (result.isConfirmed) {
+            location.reload();
+          }
+        });
+      }
+
+      // FOR KEYBOARD INPUT
+      document.addEventListener("keydown", event => {
+        if (focused) {
+          if (event.key >= 1 && event.key <= 9) {
+            fillBox(event.key);
+          } else if (event.key == "Backspace") {
+            fillBox();
+          }
+        }
+      });
+
+      /* --- OTHER MECHANISMS --- */
+
+      function showChangeColorPopup() {
+        Swal.fire({
+          title: "Select one color",
+          input: "radio",
+          inputOptions: colors,
+          inputValue: current_theme,
+          confirmButtonText: "Ok",
+          confirmButtonColor: current_theme
+        }).then(({ value: color }) => {
+          if (color) {
+            const old_theme = current_theme;
+            current_theme = color;
+
+            document.querySelectorAll(`*[class~="text-[${old_theme}]"]`).forEach(element => {
+              element.classList.replace(`text-[${old_theme}]`, `text-[${current_theme}]`);
+            });
+          }
+        });
+
+        Object.keys(colors).forEach(color => {
+          const color_option = document.querySelector(`input[value="${color}"] + span`);
+
+          color_option.style.color = color;
+        });
+      }
+    </script>
+  </div>
+</body>
+
+</html>
