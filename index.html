@@ -32,7 +32,7 @@
         Change Theme
       </button>
 
-      <div id="sudoku" class="size-fit bg-white grid grid-cols-3 border-[1px] border-gray-600 justify-self-center">
+      <div id="sudoku" class="size-fit bg-white grid grid-cols-3 border border-gray-600 justify-self-center">
       </div>
 
       <div id="input"
@@ -114,7 +114,7 @@
         const large_box = document.createElement("div");
 
         large_box.id = `large-box-${i}`;
-        large_box.className = "size-fit bg-white grid grid-cols-3 border-[1px] border-gray-600";
+        large_box.className = "size-fit bg-white grid grid-cols border border-gray-600";
 
         sudoku.appendChild(large_box);
 
@@ -126,7 +126,7 @@
           const y = Math.floor((i - 1) / 3) * 3 + Math.ceil(j / 3);
 
           small_box.id = `small-box-${x}/${y}`;
-          small_box.className = "size-[40px] bg-white border-[1px] border-gray-300";
+          small_box.className = "size-[40px] bg-white border border-gray-300";
           small_box.setAttribute("onclick", "toggleFocus(this);");
 
           small_box_text.id = `small-box-${x}/${y}-text`;
@@ -164,7 +164,7 @@
         const input_box = document.createElement("button");
 
         input_box.id = `input-${i || "blank"}`;
-        input_box.className = `size-[40px] text-[25px] text-[#ed6bff] border-[1px] border-gray-300`;
+        input_box.className = `size-[40px] text-[25px] text-[#ed6bff] border border-gray-300`;
         input_box.innerHTML = i || "";
         input_box.setAttribute("onclick", `fillBox(${i || ""});`);
 
