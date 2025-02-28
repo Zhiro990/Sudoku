@@ -27,7 +27,7 @@
   <div id="page" class="h-screen w-full absolute">
     <div id="container" class="size-fit grid grid-cols-1 gap-[40px] mx-auto -translate-y-1/2 top-1/2 relative">
       <button id="change-theme"
-        class="size-fit text-[17px] text-[#ed6bff] border-[2px] border-gray-600 px-[15px] py-[7.5px] justify-self-center rounded-lg"
+        class="size-fit text-[17px] text-[#ed6bff] border-[2px] border-gray-600 rounded-lg px-[15px] py-[7.5px] justify-self-center"
         onclick="showChangeColorPopup();">
         Change Theme
       </button>
@@ -114,7 +114,7 @@
         const large_box = document.createElement("div");
 
         large_box.id = `large-box-${i}`;
-        large_box.className = "size-fit bg-white grid grid-cols border border-gray-600";
+        large_box.className = "size-fit bg-white grid grid-cols-3 border border-gray-600";
 
         sudoku.appendChild(large_box);
 
