@@ -14,6 +14,7 @@
   <meta content="#39d7fe" name="theme-color" />
 
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
@@ -260,9 +261,7 @@
           confirmButtonText: "New Game",
           confirmButtonColor: current_theme
         }).then(result => {
-          if (result.isConfirmed) {
-            location.reload();
-          }
+          if (result.isConfirmed) return location.reload();
         });
       }
 
@@ -277,7 +276,7 @@
         }
       });
 
-      /* --- OTHER MECHANISMS --- */
+      /* --- OTHER MECHANISM --- */
 
       function showChangeColorPopup() {
         Swal.fire({
